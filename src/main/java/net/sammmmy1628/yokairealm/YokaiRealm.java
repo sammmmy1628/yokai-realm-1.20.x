@@ -38,8 +38,6 @@ public class YokaiRealm
 
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
-
-        GeckoLib.initialize();
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
