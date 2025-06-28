@@ -1,6 +1,7 @@
 package net.sammmmy1628.yokairealm;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -11,19 +12,27 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.sammmmy1628.yokairealm.entity.YokaiEntities;
+import net.sammmmy1628.yokairealm.item.YokaiCreativeModeTabs;
+import net.sammmmy1628.yokairealm.item.YokaiItems;
 import org.slf4j.Logger;
+import software.bernie.geckolib.GeckoLib;
 
 @Mod(YokaiRealm.MOD_ID)
 public class YokaiRealm
 {
-    // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "yokairealm";
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
 
     public YokaiRealm(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
+
+        YokaiCreativeModeTabs.register(modEventBus);
+
+        YokaiItems.register(modEventBus);
+        YokaiEntities.register(modEventBus);
+
 
         modEventBus.addListener(this::commonSetup);
 
@@ -32,6 +41,10 @@ public class YokaiRealm
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            ComposterBlock.COMPOSTABLES.put(YokaiItems.EGGPLANT.get(), 0.65F);
+            ComposterBlock.COMPOSTABLES.put(YokaiItems.CUCUMBER.get(), 0.65F);
+        });
 
     }
 
