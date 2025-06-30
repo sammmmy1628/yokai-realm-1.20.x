@@ -23,23 +23,23 @@ public class YBlockStateProvider extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        makeEggplantCrop(((CropBlock) YokaiBlocks.EGGPLANT_CROP.get()), "eggplant_stage_", "eggplant_stage_");
+        makeEggplantCrop(((CropBlock) YokaiBlocks.EGGPLANT_CROP.get()), "eggplant_stage_", 7);
     }
 
-    public void makeEggplantCrop(CropBlock block, String modelName, String textureName) {
-        Function<BlockState, ConfiguredModel[]> function = state -> eggplantStates(state, block, modelName, textureName);
+    public void makeEggplantCrop(CropBlock block, String stageName, int maxAge) {
+        for (int age = 0; age < maxAge; age++) {
+            String textureName = "block/" + stageName + age;
+            models().cross(stageName + age, modLoc(textureName))
+                    .renderType("cutout");
+        }
 
-        getVariantBuilder(block).forAllStates(function);
+        getVariantBuilder(block).forAllStates(state -> {
+            int age = state.getValue(EggplantCropBlock.AGE);
+            return ConfiguredModel.builder()
+                    .modelFile(models().getExistingFile(modLoc("block/" + stageName + age)))
+                    .build();
+        });
     }
-
-    private ConfiguredModel[] eggplantStates(BlockState state, CropBlock block, String modelName, String textureName) {
-        ConfiguredModel[] models = new ConfiguredModel[1];
-        models[0] = new ConfiguredModel(models().crop(modelName + state.getValue(((EggplantCropBlock) block).getAgeProperty()),
-                new ResourceLocation(YokaiRealm.MOD_ID, "block/" + textureName + state.getValue(((EggplantCropBlock) block).getAgeProperty()))).renderType("cutout"));
-        return models;
-    }
-
-
 
     private String name(Block block) {
         return key(block).getPath();

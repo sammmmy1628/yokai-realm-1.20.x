@@ -23,23 +23,11 @@ import net.sammmmy1628.yokairealm.entity.YokaiEntities;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
 
 public class EggplantCropBlock extends CropBlock {
-    public static final int MAX_AGE = 5;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_5;
+    public static final int MAX_AGE = 5;
 
-    private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D),
-            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D)};
-
-
-    public  EggplantCropBlock(BlockBehaviour.Properties pProperties) {
-        super(pProperties);
+    public EggplantCropBlock(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -55,11 +43,6 @@ public class EggplantCropBlock extends CropBlock {
     @Override
     protected ItemLike getBaseSeedId() {
         return YokaiItems.EGGPLANT_SEED.get();
-    }
-
-    @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return SHAPE_BY_AGE[this.getAge(pState)];
     }
 
 
