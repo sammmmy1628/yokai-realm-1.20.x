@@ -1,7 +1,6 @@
 package net.sammmmy1628.yokairealm.entity.client;
 
-
-
+import net.minecraft.world.entity.player.Player;
 import net.sammmmy1628.yokairealm.entity.YokaiEntities;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -17,48 +16,52 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.network.NetworkHooks;
 
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.TryFindWaterGoal;
-import net.minecraft.world.entity.ai.goal.TemptGoal;
-import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 
+import java.util.UUID;
 
 public class KappaEntity extends PathfinderMob implements GeoEntity {
     public static final EntityDataAccessor<Boolean> SHOOT = SynchedEntityData.defineId(KappaEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<String> ANIMATION = SynchedEntityData.defineId(KappaEntity.class, EntityDataSerializers.STRING);
     public static final EntityDataAccessor<String> TEXTURE = SynchedEntityData.defineId(KappaEntity.class, EntityDataSerializers.STRING);
+
+    // Attribute‑modifier UUIDs
+    private static final UUID WATER_SPEED_MOD = UUID.fromString("9dc106aa-26bb-4a21-8b85-1209e6e6a901");
+    private static final UUID WATER_DAMAGE_MOD = UUID.fromString("fd7e62c4-e09a-437e-bb51-a913d8d7f1d5");
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean swinging;
-    private boolean lastloop;
     private long lastSwing;
     public String animationprocedure = "empty";
+    private String prevAnim = "empty";
 
     public KappaEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(YokaiEntities.KAPPA.get(), world);
@@ -71,6 +74,7 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         setMaxUpStep(0.6f);
     }
 
+    /* --------------------------- Synced data --------------------------- */
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -92,6 +96,7 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
+    /* --------------------------- AI Goals --------------------------- */
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -108,8 +113,12 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(7, new FloatGoal(this));
         this.goalSelector.addGoal(8, new TemptGoal(this, 1.5, Ingredient.of(YokaiItems.CUCUMBER.get()), false));
+        // Day‑neutral / Night‑aggressive
+        this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false,
+                player -> !this.level().isDay()));
     }
 
+    /* --------------------------- Sounds --------------------------- */
     @Override
     public MobType getMobType() {
         return MobType.WATER;
@@ -125,7 +134,7 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         return ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.generic.death"));
     }
 
-
+    /* --------------------------- Persistence --------------------------- */
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
@@ -139,39 +148,34 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
             this.setTexture(compound.getString("Texture"));
     }
 
-
-    @Override
-    public EntityDimensions getDimensions(Pose p_33597_) {
-        return super.getDimensions(p_33597_).scale((float) 1);
-    }
-
-
-    @Override
-    public void aiStep() {
-        super.aiStep();
-        this.updateSwingTime();
-    }
-
+    /* --------------------------- Spawning rules --------------------------- */
     public static void init() {
         SpawnPlacements.register(YokaiEntities.KAPPA.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                (entityType, world, reason, pos, random) -> (world.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && world.getRawBrightness(pos, 0) > 8));
+                (type, level, reason, pos, random) -> {
+                    // biome whitelist – adjust if needed
+                    boolean rightBiome = level.getBiome(pos).is(Biomes.RIVER);
+                    if (!rightBiome) return false;
+
+                    // within 20 blocks of water
+                    boolean nearWater = BlockPos.betweenClosedStream(pos.offset(-20, -4, -20), pos.offset(20, 4, 20))
+                            .anyMatch(p -> level.getFluidState(p).is(Fluids.WATER));
+                    return nearWater && level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON);
+                });
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        AttributeSupplier.Builder builder = Mob.createMobAttributes();
-        builder = builder.add(Attributes.MOVEMENT_SPEED, 0.2);
-        builder = builder.add(Attributes.MAX_HEALTH, 10);
-        builder = builder.add(Attributes.ARMOR, 3);
-        builder = builder.add(Attributes.ATTACK_DAMAGE, 5);
-        builder = builder.add(Attributes.FOLLOW_RANGE, 16);
-        return builder;
+        return Mob.createMobAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.2)
+                .add(Attributes.MAX_HEALTH, 10)
+                .add(Attributes.ARMOR, 3)
+                .add(Attributes.ATTACK_DAMAGE, 5)
+                .add(Attributes.FOLLOW_RANGE, 16);
     }
 
+    /* --------------------------- Animations --------------------------- */
     private PlayState movementPredicate(AnimationState event) {
         if (this.animationprocedure.equals("empty")) {
-            if ((event.isMoving() || !(event.getLimbSwingAmount() > -0.15F && event.getLimbSwingAmount() < 0.15F))
-
-                    && !this.isAggressive()) {
+            if ((event.isMoving() || !(event.getLimbSwingAmount() > -0.15F && event.getLimbSwingAmount() < 0.15F)) && !this.isAggressive()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             }
             if (this.isDeadOrDying()) {
@@ -189,9 +193,6 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     }
 
     private PlayState attackingPredicate(AnimationState event) {
-        double d1 = this.getX() - this.xOld;
-        double d0 = this.getZ() - this.zOld;
-        float velocity = (float) Math.sqrt(d1 * d1 + d0 * d0);
         if (getAttackAnim(event.getPartialTick()) > 0f && !this.swinging) {
             this.swinging = true;
             this.lastSwing = level().getGameTime();
@@ -206,10 +207,8 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         return PlayState.CONTINUE;
     }
 
-    String prevAnim = "empty";
-
     private PlayState procedurePredicate(AnimationState event) {
-        if (!animationprocedure.equals("empty") && event.getController().getAnimationState() == AnimationController.State.STOPPED || (!this.animationprocedure.equals(prevAnim) && !this.animationprocedure.equals("empty"))) {
+        if ((!animationprocedure.equals("empty") && event.getController().getAnimationState() == AnimationController.State.STOPPED) || (!this.animationprocedure.equals(prevAnim) && !this.animationprocedure.equals("empty"))) {
             if (!this.animationprocedure.equals(prevAnim))
                 event.getController().forceAnimationReset();
             event.getController().setAnimation(RawAnimation.begin().thenPlay(this.animationprocedure));
@@ -226,23 +225,6 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
-    protected void tickDeath() {
-        ++this.deathTime;
-        if (this.deathTime == 50) {
-            this.remove(KappaEntity.RemovalReason.KILLED);
-            this.dropExperience();
-        }
-    }
-
-    public String getSyncedAnimation() {
-        return this.entityData.get(ANIMATION);
-    }
-
-    public void setAnimation(String animation) {
-        this.entityData.set(ANIMATION, animation);
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar data) {
         data.add(new AnimationController<>(this, "movement", 3, this::movementPredicate));
         data.add(new AnimationController<>(this, "attacking", 3, this::attackingPredicate));
@@ -252,5 +234,99 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
+    }
+
+    /* --------------------------- Tick logic --------------------------- */
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        this.updateSwingTime();
+
+        // Water buffs
+        boolean inWater = this.isInWaterOrBubble();
+        var speedAttr = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        var dmgAttr = this.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (inWater) {
+            if (speedAttr.getModifier(WATER_SPEED_MOD) == null) {
+                speedAttr.addPermanentModifier(
+                        new AttributeModifier(WATER_SPEED_MOD, "kappa.waterSpeed", 0.25, AttributeModifier.Operation.MULTIPLY_BASE));
+            }
+            if (dmgAttr.getModifier(WATER_DAMAGE_MOD) == null) {
+                dmgAttr.addPermanentModifier(
+                        new AttributeModifier(WATER_DAMAGE_MOD, "kappa.waterDmg", 2.0, AttributeModifier.Operation.ADDITION));
+            }
+        } else {
+            speedAttr.removeModifier(WATER_SPEED_MOD);
+            dmgAttr.removeModifier(WATER_DAMAGE_MOD);
+        }
+
+    }
+
+    /* --------------------------- Interaction / trading --------------------------- */
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.is(YokaiItems.CUCUMBER.get())) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            ItemStack reward = switch (this.random.nextInt(5)) {
+                case 0 -> new ItemStack(Items.LILY_PAD);
+                case 1 -> new ItemStack(Items.COD);
+                case 2 -> new ItemStack(Items.SALMON);
+                case 3 -> new ItemStack(Items.PRISMARINE_CRYSTALS);
+                default -> new ItemStack(Items.INK_SAC);
+            };
+            this.spawnAtLocation(reward);
+            this.animationprocedure = "trade"; // needs corresponding GeckoLib animation
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
+        }
+        return super.mobInteract(player, hand);
+    }
+
+    /* --------------------------- Hurt / particles --------------------------- */
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        boolean res = super.hurt(source, amount);
+        if (res && !this.level().isClientSide) {
+            RandomSource r = this.getRandom();
+            for (int i = 0; i < 6; ++i) {
+                this.level().addParticle(ParticleTypes.SPLASH,
+                        this.getX() + (r.nextDouble() - 0.5) * 0.6,
+                        this.getY() + 1.2,
+                        this.getZ() + (r.nextDouble() - 0.5) * 0.6,
+                        0.0, 0.1 + r.nextDouble() * 0.1, 0.0);
+            }
+        }
+        return res;
+    }
+
+    /* --------------------------- Head lock during trade --------------------------- */
+    @Override
+    public void travel(net.minecraft.world.phys.Vec3 travelVector) {
+        if ("trade".equals(this.animationprocedure)) {
+            this.setYHeadRot(this.yBodyRot);
+            this.setXRot(0);
+        }
+        super.travel(travelVector);
+    }
+
+    /* --------------------------- Death handling --------------------------- */
+    @Override
+    protected void tickDeath() {
+        ++this.deathTime;
+        if (this.deathTime >= 50) {
+            this.remove(RemovalReason.KILLED);
+            this.dropExperience();
+        }
+    }
+
+    /* --------------------------- Animation sync helpers --------------------------- */
+    public String getSyncedAnimation() {
+        return this.entityData.get(ANIMATION);
+    }
+
+    public void setAnimation(String animation) {
+        this.entityData.set(ANIMATION, animation);
     }
 }
