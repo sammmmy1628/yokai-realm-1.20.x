@@ -23,7 +23,7 @@ public class YBlockStateProvider extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        makeEggplantCrop(((CropBlock) YokaiBlocks.EGGPLANT_CROP.get()), "eggplant_stage_", 7);
+       // makeEggplantCrop(((CropBlock) YokaiBlocks.EGGPLANT_CROP.get()), "eggplant_stage_", 6);
     }
 
     public void makeEggplantCrop(CropBlock block, String stageName, int maxAge) {

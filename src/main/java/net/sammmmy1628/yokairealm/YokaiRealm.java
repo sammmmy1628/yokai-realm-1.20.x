@@ -1,8 +1,13 @@
 package net.sammmmy1628.yokairealm;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -20,7 +25,6 @@ import net.sammmmy1628.yokairealm.item.YokaiCreativeModeTabs;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
 import net.sammmmy1628.yokairealm.loot.YokaiLootModifiers;
 import org.slf4j.Logger;
-import software.bernie.geckolib.GeckoLib;
 
 @Mod(YokaiRealm.MOD_ID)
 public class YokaiRealm
@@ -39,6 +43,7 @@ public class YokaiRealm
 
         YokaiEntities.register(modEventBus);
         YokaiLootModifiers.register(modEventBus);
+
 
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
@@ -68,6 +73,7 @@ public class YokaiRealm
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(YokaiEntities.KAPPA.get(), KappaRenderer::new);
+            ItemBlockRenderTypes.setRenderLayer(YokaiBlocks.EGGPLANT_CROP.get(), RenderType.cutout());
         }
     }
 }

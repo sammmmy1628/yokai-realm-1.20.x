@@ -20,7 +20,7 @@ public class YokaiBlocks {
             DeferredRegister.create(ForgeRegistries.BLOCKS, YokaiRealm.MOD_ID);
 
     public static final RegistryObject<Block> EGGPLANT_CROP = BLOCKS.register("eggplant_crop",
-            () -> new EggplantCropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT).noOcclusion().noCollission()));
+            () -> new EggplantCropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT).noCollission().randomTicks().instabreak()));
 
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
