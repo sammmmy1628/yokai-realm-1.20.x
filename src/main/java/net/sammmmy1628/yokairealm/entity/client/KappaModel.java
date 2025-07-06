@@ -1,4 +1,4 @@
-package net.sammmmy1628.yokairealm.entity.custom;
+package net.sammmmy1628.yokairealm.entity.client;
 
 import software.bernie.geckolib.model.data.EntityModelData;
 import software.bernie.geckolib.model.GeoModel;
@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class KappaModel extends GeoModel<KappaEntity> {
     @Override
     public ResourceLocation getAnimationResource(KappaEntity entity) {
-        return new ResourceLocation("yokairealm", "animations/kappa_animations.json");
+        return new ResourceLocation("yokairealm", "animations/kappa_animation.json");
     }
 
     @Override
@@ -22,7 +22,7 @@ public class KappaModel extends GeoModel<KappaEntity> {
 
     @Override
     public ResourceLocation getTextureResource(KappaEntity entity) {
-        return new ResourceLocation("yokairealm", "textures/entities/" + entity.getTexture() + ".png");
+        return new ResourceLocation("yokairealm", "textures/entity/kappa.png");
     }
 
     @Override

@@ -21,6 +21,8 @@ public class YokaiCreativeModeTabs {
                         output.accept(YokaiItems.CUCUMBER.get());
                         output.accept(YokaiItems.KAPPA_SCUTE.get());
                         output.accept(YokaiItems.MIND_LIQUID.get());
+                        output.accept(YokaiItems.EGGPLANT_SEED.get());
+                        output.accept(YokaiItems.KAPPA_SPAWN_EGG.get());
 
                     })
                     .build());

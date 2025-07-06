@@ -1,6 +1,7 @@
 package net.sammmmy1628.yokairealm;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,9 +13,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.sammmmy1628.yokairealm.block.YokaiBlocks;
 import net.sammmmy1628.yokairealm.entity.YokaiEntities;
+import net.sammmmy1628.yokairealm.entity.custom.KappaRenderer;
 import net.sammmmy1628.yokairealm.item.YokaiCreativeModeTabs;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
+import net.sammmmy1628.yokairealm.loot.YokaiLootModifiers;
 import org.slf4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 
@@ -22,20 +26,21 @@ import software.bernie.geckolib.GeckoLib;
 public class YokaiRealm
 {
     public static final String MOD_ID = "yokairealm";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
 
-    public YokaiRealm(FMLJavaModLoadingContext context) {
-        IEventBus modEventBus = context.getModEventBus();
+    public YokaiRealm() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         YokaiCreativeModeTabs.register(modEventBus);
 
         YokaiItems.register(modEventBus);
-        YokaiEntities.register(modEventBus);
+        YokaiBlocks.register(modEventBus);
 
+        YokaiEntities.register(modEventBus);
+        YokaiLootModifiers.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
-
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
     }
@@ -62,7 +67,7 @@ public class YokaiRealm
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-
+            EntityRenderers.register(YokaiEntities.KAPPA.get(), KappaRenderer::new);
         }
     }
 }

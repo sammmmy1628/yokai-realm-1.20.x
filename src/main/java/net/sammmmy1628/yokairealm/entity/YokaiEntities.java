@@ -7,9 +7,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.sammmmy1628.yokairealm.YokaiRealm;
-import net.sammmmy1628.yokairealm.entity.custom.KappaEntity;
+import net.sammmmy1628.yokairealm.entity.client.KappaEntity;
 
-import static net.minecraftforge.registries.ForgeRegistries.Keys.ENTITY_TYPES;
 import static software.bernie.example.registry.EntityRegistry.ENTITIES;
 
 public class YokaiEntities {

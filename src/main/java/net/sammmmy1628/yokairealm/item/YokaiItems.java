@@ -1,11 +1,15 @@
 package net.sammmmy1628.yokairealm.item;
 
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemNameBlockItem;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.sammmmy1628.yokairealm.YokaiRealm;
+import net.sammmmy1628.yokairealm.block.YokaiBlocks;
+import net.sammmmy1628.yokairealm.entity.YokaiEntities;
 
 public class YokaiItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -20,6 +24,12 @@ public class YokaiItems {
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> MIND_LIQUID = ITEMS.register("mind_liquid",
             () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> EGGPLANT_SEED = ITEMS.register("eggplant_seed",
+            () -> new ItemNameBlockItem(YokaiBlocks.EGGPLANT_CROP.get(), new Item.Properties()));
+
+    public static final RegistryObject<Item> KAPPA_SPAWN_EGG = ITEMS.register("kappa_spawn_egg",
+            () -> new ForgeSpawnEggItem(YokaiEntities.KAPPA, 0x003300, 0x003399, new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
