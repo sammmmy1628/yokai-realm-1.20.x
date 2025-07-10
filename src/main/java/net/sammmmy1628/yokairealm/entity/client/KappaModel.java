@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class KappaModel extends GeoModel<KappaEntity> {
     @Override
     public ResourceLocation getAnimationResource(KappaEntity entity) {
-        return new ResourceLocation("yokairealm", "animations/kappa_animation.json");
+        return new ResourceLocation("yokairealm", "animations/kappa_animations.geo.json");
     }
 
     @Override

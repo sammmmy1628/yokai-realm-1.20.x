@@ -20,6 +20,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.sammmmy1628.yokairealm.block.YokaiBlocks;
 import net.sammmmy1628.yokairealm.entity.YokaiEntities;
+import net.sammmmy1628.yokairealm.entity.custom.HyosubeRenderer;
 import net.sammmmy1628.yokairealm.entity.custom.KappaRenderer;
 import net.sammmmy1628.yokairealm.item.YokaiCreativeModeTabs;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
@@ -73,6 +74,8 @@ public class YokaiRealm
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(YokaiEntities.KAPPA.get(), KappaRenderer::new);
+            EntityRenderers.register(YokaiEntities.HYOSUBE.get(), HyosubeRenderer::new);
+
             ItemBlockRenderTypes.setRenderLayer(YokaiBlocks.EGGPLANT_CROP.get(), RenderType.cutout());
         }
     }

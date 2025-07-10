@@ -12,5 +12,6 @@ public class YokaiEventBusEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(YokaiEntities.KAPPA.get(), KappaEntity.createAttributes().build());
+        event.put(YokaiEntities.HYOSUBE.get(), KappaEntity.createAttributes().build());
     }
 }

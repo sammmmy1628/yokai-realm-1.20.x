@@ -1,5 +1,6 @@
 package net.sammmmy1628.yokairealm.entity.client;
 
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.sammmmy1628.yokairealm.entity.YokaiEntities;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
@@ -62,6 +63,10 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     private long lastSwing;
     public String animationprocedure = "empty";
     private String prevAnim = "empty";
+
+    private int tradeCooldown = 0;
+    private ItemStack pendingTrade = ItemStack.EMPTY;
+
 
     public KappaEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(YokaiEntities.KAPPA.get(), world);
@@ -239,49 +244,50 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     /* --------------------------- Tick logic --------------------------- */
     @Override
     public void aiStep() {
-        super.aiStep();
-        this.updateSwingTime();
+        // Detect item entities nearby
+        if (tradeCooldown <= 0 && pendingTrade.isEmpty() && !this.level().isClientSide) {
+            this.level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.5), item ->
+                            item.getItem().is(YokaiItems.CUCUMBER.get()) && item.tickCount > 1) // NEW condition
+                    .stream().findFirst().ifPresent(itemEntity -> {
+                        // Consume the cucumber
+                        pendingTrade = itemEntity.getItem().copy();
+                        itemEntity.getItem().shrink(1);
+                        if (itemEntity.getItem().isEmpty()) itemEntity.discard();
 
-        // Water buffs
-        boolean inWater = this.isInWaterOrBubble();
-        var speedAttr = this.getAttribute(Attributes.MOVEMENT_SPEED);
-        var dmgAttr = this.getAttribute(Attributes.ATTACK_DAMAGE);
-        if (inWater) {
-            if (speedAttr.getModifier(WATER_SPEED_MOD) == null) {
-                speedAttr.addPermanentModifier(
-                        new AttributeModifier(WATER_SPEED_MOD, "kappa.waterSpeed", 0.25, AttributeModifier.Operation.MULTIPLY_BASE));
-            }
-            if (dmgAttr.getModifier(WATER_DAMAGE_MOD) == null) {
-                dmgAttr.addPermanentModifier(
-                        new AttributeModifier(WATER_DAMAGE_MOD, "kappa.waterDmg", 2.0, AttributeModifier.Operation.ADDITION));
-            }
-        } else {
-            speedAttr.removeModifier(WATER_SPEED_MOD);
-            dmgAttr.removeModifier(WATER_DAMAGE_MOD);
+                        // Begin trade animation
+                        this.animationprocedure = "trade";
+                        this.tradeCooldown = 40;
+                        this.setXRot(-60);
+                    });
+
         }
 
-    }
+// Handle trading delay and reward drop
+        if (tradeCooldown > 0) {
+            this.tradeCooldown--;
 
-    /* --------------------------- Interaction / trading --------------------------- */
-    @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        if (stack.is(YokaiItems.CUCUMBER.get())) {
-            if (!player.isCreative()) {
-                stack.shrink(1);
+            this.getNavigation().stop();
+            this.setDeltaMovement(0, getDeltaMovement().y, 0);
+
+            if (tradeCooldown == 1 && !this.level().isClientSide && !pendingTrade.isEmpty()) {
+                // Drop reward
+                ItemStack reward = switch (this.random.nextInt(5)) {
+                    case 0 -> new ItemStack(Items.LILY_PAD);
+                    case 1 -> new ItemStack(Items.COD);
+                    case 2 -> new ItemStack(Items.SALMON);
+                    case 3 -> new ItemStack(Items.PRISMARINE_CRYSTALS);
+                    default -> new ItemStack(Items.INK_SAC);
+                };
+                this.spawnAtLocation(reward);
+                pendingTrade = ItemStack.EMPTY;
+                this.setXRot(0);
             }
-            ItemStack reward = switch (this.random.nextInt(5)) {
-                case 0 -> new ItemStack(Items.LILY_PAD);
-                case 1 -> new ItemStack(Items.COD);
-                case 2 -> new ItemStack(Items.SALMON);
-                case 3 -> new ItemStack(Items.PRISMARINE_CRYSTALS);
-                default -> new ItemStack(Items.INK_SAC);
-            };
-            this.spawnAtLocation(reward);
-            this.animationprocedure = "trade"; // needs corresponding GeckoLib animation
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 0.0, 0.2, 0.0);
+            this.level().playSound(null, this.blockPosition(), ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("entity.villager.yes")),
+                    this.getSoundSource(), 1.0f, 1.0f);
+
         }
-        return super.mobInteract(player, hand);
+
     }
 
     /* --------------------------- Hurt / particles --------------------------- */

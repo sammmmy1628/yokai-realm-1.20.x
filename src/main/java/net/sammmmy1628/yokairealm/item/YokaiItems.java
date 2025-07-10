@@ -31,6 +31,9 @@ public class YokaiItems {
     public static final RegistryObject<Item> KAPPA_SPAWN_EGG = ITEMS.register("kappa_spawn_egg",
             () -> new ForgeSpawnEggItem(YokaiEntities.KAPPA, 0x003300, 0x003399, new Item.Properties()));
 
+    public static final RegistryObject<Item> HYOSUBE_SPAWN_EGG = ITEMS.register("hyosube_spawn_egg",
+            () -> new ForgeSpawnEggItem(YokaiEntities.HYOSUBE, 0xfad1aa, 0x000000, new Item.Properties()));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

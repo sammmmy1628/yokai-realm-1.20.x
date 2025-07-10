@@ -7,6 +7,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.sammmmy1628.yokairealm.YokaiRealm;
+import net.sammmmy1628.yokairealm.entity.client.HyosubeEntity;
 import net.sammmmy1628.yokairealm.entity.client.KappaEntity;
 
 import static software.bernie.example.registry.EntityRegistry.ENTITIES;
@@ -21,6 +22,13 @@ public class YokaiEntities {
                     EntityType.Builder.<KappaEntity>of(KappaEntity::new, MobCategory.MONSTER)
                             .sized(0.6f, 1.8f) // set size accordingly
                             .build("kappa"));
+
+    public static final RegistryObject<EntityType<HyosubeEntity>> HYOSUBE =
+            ENTITIES.register("hyosube", () ->
+                    EntityType.Builder.<HyosubeEntity>of(HyosubeEntity::new, MobCategory.MONSTER)
+                            .sized(0.6f, 1.8f) // set size accordingly
+                            .build("hyosube"));
+
 
 
 
