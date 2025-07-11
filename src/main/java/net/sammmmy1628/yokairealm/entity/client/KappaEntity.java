@@ -119,8 +119,11 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         this.goalSelector.addGoal(7, new FloatGoal(this));
         this.goalSelector.addGoal(8, new TemptGoal(this, 1.5, Ingredient.of(YokaiItems.CUCUMBER.get()), false));
         // Day‑neutral / Night‑aggressive
+
         this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false,
                 player -> !this.level().isDay()));
+
+
     }
 
     /* --------------------------- Sounds --------------------------- */
@@ -244,6 +247,8 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
     /* --------------------------- Tick logic --------------------------- */
     @Override
     public void aiStep() {
+        super.aiStep();
+        this.updateSwingTime();
         // Detect item entities nearby
         if (tradeCooldown <= 0 && pendingTrade.isEmpty() && !this.level().isClientSide) {
             this.level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.5), item ->
