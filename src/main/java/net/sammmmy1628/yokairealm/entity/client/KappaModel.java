@@ -22,7 +22,7 @@ public class KappaModel extends GeoModel<KappaEntity> {
 
     @Override
     public ResourceLocation getTextureResource(KappaEntity entity) {
-        return new ResourceLocation("yokairealm", "textures/entity/kappa.png");
+        return new ResourceLocation("yokairealm", "textures/entity/kappa/" + entity.getTexture() + ".png");
     }
 
     @Override

@@ -17,8 +17,9 @@ public class KappaRenderer extends GeoEntityRenderer<KappaEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(KappaEntity animatable) {
-        return new ResourceLocation(YokaiRealm.MOD_ID, "textures/entity/kappa.png");
+        return new ResourceLocation(YokaiRealm.MOD_ID, "textures/entity/" + animatable.getTexture() + ".png");
     }
+
 
     @Override
     public void render(KappaEntity pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {

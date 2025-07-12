@@ -77,6 +77,7 @@ public class YokaiRealm
             EntityRenderers.register(YokaiEntities.HYOSUBE.get(), HyosubeRenderer::new);
 
             ItemBlockRenderTypes.setRenderLayer(YokaiBlocks.EGGPLANT_CROP.get(), RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(YokaiBlocks.CUCUMBER_CROP.get(), RenderType.cutout());
         }
     }
 }

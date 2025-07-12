@@ -18,7 +18,7 @@ public class YokaiItems {
     public static final RegistryObject<Item> EGGPLANT = ITEMS.register("eggplant",
             () -> new Item(new Item.Properties().food(YokaiFood.EGGPLANT)));
     public static final RegistryObject<Item> CUCUMBER = ITEMS.register("cucumber",
-            () -> new Item(new Item.Properties().food(YokaiFood.CUCUMBER)));
+            () -> new ItemNameBlockItem(YokaiBlocks.CUCUMBER_CROP.get(), new Item.Properties()));//change
 
     public static final RegistryObject<Item> KAPPA_SCUTE = ITEMS.register("kappa_scute",
             () -> new Item(new Item.Properties()));

@@ -66,7 +66,10 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
 
     private int tradeCooldown = 0;
     private ItemStack pendingTrade = ItemStack.EMPTY;
-
+    private static final String[] TEXTURE_VARIANTS = {
+            "kappa",
+            "kappa_red"
+    };
 
     public KappaEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(YokaiEntities.KAPPA.get(), world);
@@ -77,6 +80,10 @@ public class KappaEntity extends PathfinderMob implements GeoEntity {
         xpReward = 5;
         setNoAi(false);
         setMaxUpStep(0.6f);
+        if (!world.isClientSide) {
+            String randomTexture = this.getRandom().nextFloat() < 0.92f ? "kappa" : "kappa_red";
+            this.setTexture(randomTexture);
+        }
     }
 
     /* --------------------------- Synced data --------------------------- */

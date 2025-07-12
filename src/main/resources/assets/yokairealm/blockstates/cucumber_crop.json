@@ -1,0 +1,14 @@
+{
+  "variants": {
+    "age=0,half=lower": { "model": "yokairealm:block/cucumber_stage0_lower" },
+    "age=1,half=lower": { "model": "yokairealm:block/cucumber_stage1_lower" },
+    "age=2,half=lower": { "model": "yokairealm:block/cucumber_stage2_lower" },
+    "age=2,half=upper": { "model": "yokairealm:block/cucumber_stage2_top" },
+    "age=3,half=lower": { "model": "yokairealm:block/cucumber_stage3_lower" },
+    "age=3,half=upper": { "model": "yokairealm:block/cucumber_stage3_top" },
+    "age=4,half=lower": { "model": "yokairealm:block/cucumber_stage4_lower" },
+    "age=4,half=upper": { "model": "yokairealm:block/cucumber_stage4_top" },
+    "age=5,half=lower": { "model": "yokairealm:block/cucumber_stage5_lower" },
+    "age=5,half=upper": { "model": "yokairealm:block/cucumber_stage5_top" }
+  }
+}

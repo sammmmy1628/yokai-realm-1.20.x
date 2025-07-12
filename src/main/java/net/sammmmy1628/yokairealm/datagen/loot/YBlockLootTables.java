@@ -8,6 +8,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.registries.RegistryObject;
 import net.sammmmy1628.yokairealm.block.YokaiBlocks;
+import net.sammmmy1628.yokairealm.block.custom.CucumberCropBlock;
 import net.sammmmy1628.yokairealm.block.custom.EggplantCropBlock;
 import net.sammmmy1628.yokairealm.item.YokaiItems;
 
@@ -26,6 +27,13 @@ public class YBlockLootTables extends BlockLootSubProvider {
 
         this.add(YokaiBlocks.EGGPLANT_CROP.get(), createCropDrops(YokaiBlocks.EGGPLANT_CROP.get(), YokaiItems.EGGPLANT.get(),
                 YokaiItems.EGGPLANT_SEED.get(), lootitemcondition$builder));
+
+        LootItemCondition.Builder lootitemcondition$builder2 = LootItemBlockStatePropertyCondition
+                .hasBlockStateProperties(YokaiBlocks.CUCUMBER_CROP.get())
+                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CucumberCropBlock.AGE, 5));
+
+        this.add(YokaiBlocks.CUCUMBER_CROP.get(), createCropDrops(YokaiBlocks.CUCUMBER_CROP.get(), YokaiItems.CUCUMBER.get(),
+                YokaiItems.CUCUMBER.get(), lootitemcondition$builder2));//cucumber_seed
     }
 
     @Override

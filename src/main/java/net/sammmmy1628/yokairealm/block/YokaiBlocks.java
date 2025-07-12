@@ -21,6 +21,8 @@ public class YokaiBlocks {
 
     public static final RegistryObject<Block> EGGPLANT_CROP = BLOCKS.register("eggplant_crop",
             () -> new EggplantCropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT).noCollission().randomTicks().instabreak()));
+    public static final RegistryObject<Block> CUCUMBER_CROP = BLOCKS.register("cucumber_crop",
+            () -> new EggplantCropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT).noCollission().randomTicks().instabreak()));
 
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
